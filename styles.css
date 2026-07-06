@@ -446,6 +446,53 @@ h3 {
   gap: 14px;
 }
 
+.apps-section {
+  border-top: 1px solid rgba(221, 189, 132, 0.2);
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.app-card {
+  grid-column: span 12;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--card);
+  padding: 20px;
+}
+
+.app-card h3 {
+  margin-bottom: 8px;
+}
+
+.app-tag {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--sand-400) !important;
+}
+
+.coming-soon-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px dashed rgba(240, 217, 172, 0.55);
+  color: var(--sand-300);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.company-logo-static {
+  cursor: default;
+}
+
 .company-card-lg {
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -598,6 +645,10 @@ h3 {
 
   .contact-grid {
     grid-template-columns: 0.9fr 1.1fr;
+  }
+
+  .app-card {
+    grid-column: span 6;
   }
 }
 
