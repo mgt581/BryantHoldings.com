@@ -49,13 +49,13 @@
   </header>
 
   <main id="main">
-    <section class="hero-grid section-tight" aria-label="Hero">
+    <section class="hero-grid section-hero" aria-label="Hero">
       <div class="hero-orb hero-orb-a" aria-hidden="true"></div>
       <div class="hero-orb hero-orb-b" aria-hidden="true"></div>
 
       <div class="container hero-grid-wrap reveal">
         <div class="hero-copy">
-          <p class="eyebrow">Page 1 · Home</p>
+          <p class="eyebrow hero-eyebrow">Multi-Industry Growth Group</p>
           <h1>Growing category leaders with precision and pace.</h1>
           <p class="lede">
             Bryant Group Holdings acquires, operates, and accelerates specialist businesses. We combine
@@ -68,10 +68,10 @@
         </div>
 
         <aside class="hero-panel" aria-label="Performance snapshot">
-          <figure class="hero-main-image" aria-label="Bryant Digital Solutions logo">
+          <figure class="hero-main-image" aria-label="Bryant Group Holdings mark">
             <picture>
               <source srcset="assets/bds-logo.png" type="image/png" />
-              <img src="assets/bdslogo.JPG" alt="Bryant Digital Solutions logo" loading="lazy" />
+              <img src="assets/bdslogo.JPG" alt="Bryant Group Holdings brand mark" loading="lazy" />
             </picture>
           </figure>
           <p class="eyebrow">2026 Snapshot</p>
@@ -125,59 +125,89 @@
       </div>
     </section>
 
-    <section class="section accent-surface">
+    <section class="section accent-surface" id="portfolio">
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">Portfolio Preview</p>
           <h2>Four companies. One disciplined growth engine.</h2>
         </div>
-        <div class="company-list">
-          <article class="company-row reveal">
-            <h3>Bryant Construction Group</h3>
-            <p>Renovation, maintenance, and building services for residential and commercial clients.</p>
-            <div class="company-links">
-              <a class="company-site-btn" href="https://bryantconstruct.com" target="_blank" rel="noopener noreferrer">Visit bryantconstruct.com</a>
-              <a class="company-logo-btn" href="https://bryantconstruct.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Bryant Construction Group website">
+        <div class="portfolio-grid">
+
+          <article class="portfolio-card reveal">
+            <div class="portfolio-card-visual portfolio-card-visual--construction">
+              <img src="assets/constructionlogo.png" alt="" loading="lazy" class="portfolio-card-visual-img" />
+            </div>
+            <div class="portfolio-card-body">
+              <div class="portfolio-card-logo">
                 <img src="assets/constructionlogo.png" alt="Bryant Construction Group logo" loading="lazy" />
+              </div>
+              <h3>Bryant Construction Group</h3>
+              <p>Renovation, maintenance, and building services for residential and commercial clients.</p>
+              <a class="btn-visit" href="https://bryantconstruct.com" target="_blank" rel="noopener noreferrer">
+                Visit Website
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </div>
           </article>
-          <article class="company-row reveal">
-            <h3>Bryant &amp; Co Cleaning</h3>
-            <p>Reliable domestic and commercial cleaning with standards built for long-term contracts.</p>
-            <div class="company-links">
-              <a class="company-site-btn" href="https://bryantandcocleaning.co.uk" target="_blank" rel="noopener noreferrer">Visit bryantandcocleaning.co.uk</a>
-              <a class="company-logo-btn" href="https://bryantandcocleaning.co.uk" target="_blank" rel="noopener noreferrer" aria-label="Visit Bryant and Co Cleaning website">
+
+          <article class="portfolio-card reveal">
+            <div class="portfolio-card-visual portfolio-card-visual--cleaning">
+              <img src="assets/cleaninglogo.PNG" alt="" loading="lazy" class="portfolio-card-visual-img" />
+            </div>
+            <div class="portfolio-card-body">
+              <div class="portfolio-card-logo">
                 <img src="assets/cleaninglogo.PNG" alt="Bryant and Co Cleaning logo" loading="lazy" />
+              </div>
+              <h3>Bryant &amp; Co Cleaning</h3>
+              <p>Reliable domestic and commercial cleaning with standards built for long-term contracts.</p>
+              <a class="btn-visit" href="https://bryantandcocleaning.co.uk" target="_blank" rel="noopener noreferrer">
+                Visit Website
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </div>
           </article>
-          <article class="company-row reveal">
-            <h3>Mr White Teeth Whitening</h3>
-            <p>Customer-first cosmetic treatments with premium presentation and repeatable outcomes.</p>
-            <div class="company-links">
-              <a class="company-site-btn" href="https://teethwhiteningbournemouth.co.uk" target="_blank" rel="noopener noreferrer">Visit teethwhiteningbournemouth.co.uk</a>
-              <a class="company-logo-btn" href="https://teethwhiteningbournemouth.co.uk" target="_blank" rel="noopener noreferrer" aria-label="Visit Mr White Teeth Whitening website">
-                <img src="assets/teethhero.png" alt="Mr White Teeth Whitening logo" loading="lazy" />
+
+          <article class="portfolio-card reveal">
+            <div class="portfolio-card-visual portfolio-card-visual--teeth">
+              <img src="assets/teethhero.png" alt="" loading="lazy" class="portfolio-card-visual-img portfolio-card-visual-img--cover" />
+            </div>
+            <div class="portfolio-card-body">
+              <div class="portfolio-card-logo portfolio-card-logo--text">Mr White</div>
+              <h3>Mr White Teeth Whitening</h3>
+              <p>Customer-first cosmetic treatments with premium presentation and repeatable outcomes.</p>
+              <a class="btn-visit" href="https://teethwhiteningbournemouth.co.uk" target="_blank" rel="noopener noreferrer">
+                Visit Website
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </div>
           </article>
-          <article class="company-row reveal">
-            <h3>Bryant Digital Solutions</h3>
-            <p>Web, SEO, automation, and growth systems that power modern service businesses.</p>
-            <div class="company-links">
-              <a class="company-site-btn" href="https://bryantdigitalsolutions.com" target="_blank" rel="noopener noreferrer">Visit bryantdigitalsolutions.com</a>
-              <a class="company-logo-btn" href="https://bryantdigitalsolutions.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Bryant Digital Solutions website">
+
+          <article class="portfolio-card reveal">
+            <div class="portfolio-card-visual portfolio-card-visual--digital">
+              <picture>
+                <source srcset="assets/bds-logo.png" type="image/png" />
+                <img src="assets/bdslogo.JPG" alt="" loading="lazy" class="portfolio-card-visual-img" />
+              </picture>
+            </div>
+            <div class="portfolio-card-body">
+              <div class="portfolio-card-logo">
                 <picture>
                   <source srcset="assets/bds-logo.png" type="image/png" />
                   <img src="assets/bdslogo.JPG" alt="Bryant Digital Solutions logo" loading="lazy" />
                 </picture>
+              </div>
+              <h3>Bryant Digital Solutions</h3>
+              <p>Web, SEO, automation, and growth systems that power modern service businesses.</p>
+              <a class="btn-visit" href="https://bryantdigitalsolutions.com" target="_blank" rel="noopener noreferrer">
+                Visit Website
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </div>
           </article>
+
         </div>
         <div class="section-actions reveal">
-          <a class="btn btn-primary" href="companies.html">View Full Company Pages</a>
+          <a class="btn btn-primary" href="companies.html">View All Companies</a>
         </div>
       </div>
     </section>
@@ -185,17 +215,17 @@
     <section class="section">
       <div class="container split-cta reveal">
         <div>
-          <p class="eyebrow">Build Page by Page</p>
-          <h2>Next pages are ready.</h2>
+          <p class="eyebrow">Explore Further</p>
+          <h2>Learn our story. Meet our companies.</h2>
           <p>
-            The site now has dedicated pages for your story, your companies, and your contact funnel.
-            We can continue improving each page in sequence.
+            Discover the thinking behind Bryant Group Holdings, explore each business in detail,
+            or reach out to discuss a partnership or opportunity.
           </p>
         </div>
         <div class="split-cta-links">
-          <a href="about.html">Go to Page 2: About</a>
-          <a href="companies.html">Go to Page 3: Companies</a>
-          <a href="contact.html">Go to Page 4: Contact</a>
+          <a href="about.html">About Us</a>
+          <a href="companies.html">Our Companies</a>
+          <a href="contact.html">Get in Touch</a>
         </div>
       </div>
     </section>
