@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | Bryant Group Holdings</title>
+  <meta
+    name="description"
+    content="Contact Bryant Group Holdings to discuss partnerships, services, and strategic opportunities."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Playfair+Display:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header" id="top">
+    <div class="container nav-wrap">
+      <a href="index.html" class="brand" aria-label="Bryant Group Holdings home">
+        <span class="brand-mark" aria-hidden="true">BG</span>
+        <span class="brand-text">Bryant Group Holdings</span>
+      </a>
+
+      <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="companies.html">Companies</a>
+        <a class="active" href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero section-tight">
+      <div class="container reveal">
+        <p class="eyebrow">Page 4 · Contact</p>
+        <h1>Start a conversation with Bryant Group Holdings.</h1>
+        <p class="lede">
+          Share your requirements and we will connect you to the right team within our portfolio.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container contact-grid">
+        <article class="contact-panel reveal">
+          <h2>Direct Contact</h2>
+          <p>Email: <a href="mailto:hello@bryantgroupholdings.com">hello@bryantgroupholdings.com</a></p>
+          <p>Phone: <a href="tel:+440000000000">+44 0000 000000</a></p>
+          <p>Response time: Typically within 1 business day.</p>
+        </article>
+
+        <form class="contact-form reveal" action="mailto:hello@bryantgroupholdings.com" method="post" enctype="text/plain">
+          <label for="name">Full Name</label>
+          <input id="name" name="name" type="text" required />
+
+          <label for="email">Email Address</label>
+          <input id="email" name="email" type="email" required />
+
+          <label for="interest">Area of Interest</label>
+          <select id="interest" name="interest" required>
+            <option value="">Choose one</option>
+            <option>Construction Services</option>
+            <option>Cleaning Services</option>
+            <option>Teeth Whitening Services</option>
+            <option>Digital Solutions</option>
+            <option>Partnership Opportunity</option>
+            <option>General Enquiry</option>
+          </select>
+
+          <label for="message">Project Details</label>
+          <textarea id="message" name="message" rows="6" required></textarea>
+
+          <button class="btn btn-primary" type="submit">Send Enquiry</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <div>
+        <strong>Bryant Group Holdings</strong>
+        <p>Building practical, high-trust businesses across multiple industries.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="companies.html">Companies</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+    <p class="copyright">Copyright <span class="current-year"></span> Bryant Group Holdings. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

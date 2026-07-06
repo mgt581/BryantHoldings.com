@@ -1,8 +1,7 @@
 const menuToggle = document.querySelector('.menu-toggle');
 const siteNav = document.querySelector('.site-nav');
 const revealItems = document.querySelectorAll('.reveal');
-const counters = document.querySelectorAll('.stat-number');
-const cityline = document.querySelector('.cityline');
+const counters = document.querySelectorAll('[data-count]');
 
 if (menuToggle && siteNav) {
   menuToggle.addEventListener('click', () => {
@@ -19,29 +18,33 @@ if (menuToggle && siteNav) {
   });
 }
 
-const revealObserver = new IntersectionObserver(
-  (entries, observer) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.16 }
-);
+if ('IntersectionObserver' in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
 
-revealItems.forEach((item) => revealObserver.observe(item));
+  revealItems.forEach((item) => revealObserver.observe(item));
+} else {
+  revealItems.forEach((item) => item.classList.add('visible'));
+}
 
 const animateCounter = (el) => {
-  const target = Number(el.dataset.target || 0);
+  const target = Number(el.dataset.count || 0);
   const suffix = el.dataset.suffix || '';
-  const duration = 1200;
+  const duration = 1300;
   const start = performance.now();
 
   const tick = (time) => {
     const progress = Math.min((time - start) / duration, 1);
-    const value = Math.floor(progress * target);
+    const value = Math.floor(target * progress);
     el.textContent = `${value}${suffix}`;
 
     if (progress < 1) {
@@ -54,33 +57,22 @@ const animateCounter = (el) => {
   requestAnimationFrame(tick);
 };
 
-const counterObserver = new IntersectionObserver(
-  (entries, observer) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        animateCounter(entry.target);
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.5 }
-);
+if ('IntersectionObserver' in window) {
+  const counterObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
 
-counters.forEach((counter) => counterObserver.observe(counter));
+  counters.forEach((counter) => counterObserver.observe(counter));
+}
 
-let ticking = false;
-const updateParallax = () => {
-  if (!cityline) return;
-  const y = window.scrollY * 0.12;
-  cityline.style.setProperty('--parallax', `${y}px`);
-  ticking = false;
-};
-
-window.addEventListener('scroll', () => {
-  if (!ticking) {
-    window.requestAnimationFrame(updateParallax);
-    ticking = true;
-  }
+document.querySelectorAll('.current-year').forEach((el) => {
+  el.textContent = String(new Date().getFullYear());
 });
-
-document.getElementById('year').textContent = String(new Date().getFullYear());
