@@ -95,8 +95,8 @@ a {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 56px;
+  height: 56px;
   border-radius: 10px;
   border: 1px solid rgba(221, 189, 132, 0.48);
   background: rgba(255, 255, 255, 0.08);
@@ -115,7 +115,7 @@ a {
 }
 
 .brand-text {
-  font-size: 0.92rem;
+  font-size: 0.98rem;
 }
 
 .site-nav {
@@ -222,7 +222,7 @@ h3 {
 
 .hero-grid-wrap {
   display: grid;
-  gap: 20px;
+  gap: 28px;
   grid-template-columns: 1fr;
   align-items: stretch;
 }
@@ -260,22 +260,22 @@ h3 {
 .hero-panel {
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 24px;
+  padding: clamp(26px, 2.2vw, 34px);
   background: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
   box-shadow: var(--shadow-lg);
 }
 
 .hero-main-image {
-  margin: 0 0 18px;
+  margin: 0 0 24px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(221, 189, 132, 0.35);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 12px;
+  border: 1px solid rgba(221, 189, 132, 0.46);
+  background: rgba(255, 255, 255, 0.06);
+  padding: clamp(16px, 1.8vw, 22px);
 }
 
 .hero-main-image img {
   width: 100%;
-  height: clamp(180px, 25vw, 250px);
+  height: clamp(240px, 34vw, 350px);
   object-fit: contain;
   object-position: center;
 }
@@ -365,7 +365,7 @@ h3 {
 }
 
 .company-row {
-  padding: 18px 20px;
+  padding: clamp(22px, 2.2vw, 28px);
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
@@ -376,10 +376,12 @@ h3 {
 }
 
 .company-links {
-  margin-top: 10px;
+  margin-top: 14px;
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .company-site-btn,
@@ -387,47 +389,58 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 10px 14px;
+  min-height: 30px;
+  padding: 6px 11px;
   border-radius: 999px;
   border: 1px solid rgba(221, 189, 132, 0.4);
   transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  max-width: 100%;
 }
 
 .company-site-btn {
   color: #2a2010;
   background: linear-gradient(115deg, var(--sand-300), var(--sand-500));
   font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .company-logo-btn {
   color: var(--mist-100);
   background: rgba(255, 255, 255, 0.04);
   font-weight: 600;
-  min-width: 190px;
-  padding: 8px 12px;
+  min-width: min(100%, 340px);
+  width: min(100%, 460px);
+  min-height: 102px;
+  padding: 14px 18px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
 }
 
 .company-logo-btn img {
-  width: 150px;
-  height: 38px;
+  width: clamp(200px, 34vw, 360px);
+  height: clamp(72px, 14vw, 136px);
   object-fit: contain;
   object-position: center;
 }
 
 .company-list .company-logo-btn,
 .company-list-lg .company-logo-btn {
-  min-width: 260px;
-  min-height: 60px;
-  padding: 10px 16px;
-  border-radius: 14px;
+  min-width: min(100%, 420px);
+  width: min(100%, 540px);
+  min-height: 124px;
+  padding: 16px 20px;
+  border-radius: 20px;
 }
 
 .company-list .company-logo-btn img,
 .company-list-lg .company-logo-btn img {
-  width: 220px;
-  height: 56px;
+  width: clamp(240px, 42vw, 440px);
+  height: clamp(96px, 16vw, 160px);
 }
 
 .company-site-btn:hover,
@@ -500,7 +513,7 @@ h3 {
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: var(--card);
-  padding: 20px;
+  padding: clamp(22px, 2vw, 28px);
 }
 
 .app-card h3 {
@@ -519,8 +532,8 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 10px 14px;
+  min-height: 30px;
+  padding: 6px 11px;
   border-radius: 999px;
   border: 1px dashed rgba(240, 217, 172, 0.55);
   color: var(--sand-300);
@@ -536,7 +549,7 @@ h3 {
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: var(--card);
-  padding: 22px;
+  padding: clamp(24px, 2.4vw, 34px);
 }
 
 .company-card-lg h2 {
@@ -675,7 +688,7 @@ h3 {
   }
 
   .hero-grid-wrap {
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: 1.35fr 1.1fr;
   }
 
   .split-cta {
@@ -727,12 +740,89 @@ h3 {
   }
 
   .brand-text {
-    font-size: 0.8rem;
+    font-size: 0.84rem;
+  }
+
+  .section {
+    padding: clamp(62px, 9vw, 78px) 0;
+  }
+
+  .section-tight {
+    padding: clamp(64px, 9vw, 84px) 0 clamp(34px, 7vw, 52px);
+  }
+
+  .hero-grid-wrap {
+    gap: 24px;
+  }
+
+  .hero-main-image img {
+    height: clamp(230px, 58vw, 320px);
+  }
+
+  .company-list,
+  .company-list-lg,
+  .apps-grid {
+    gap: 16px;
+  }
+
+  .company-site-btn,
+  .coming-soon-chip {
+    min-height: 28px;
+    padding: 5px 10px;
+    font-size: 0.78rem;
   }
 
   .company-list .company-logo-btn,
-  .company-list-lg .company-logo-btn {
+  .company-list-lg .company-logo-btn,
+  .app-card .company-logo-btn {
+    width: 100%;
     min-width: 100%;
+    min-height: 116px;
+    padding: 14px 16px;
+  }
+
+  .company-list .company-logo-btn img,
+  .company-list-lg .company-logo-btn img,
+  .app-card .company-logo-btn img {
+    width: clamp(220px, 70vw, 360px);
+    height: clamp(90px, 30vw, 140px);
+  }
+}
+
+@media (max-width: 520px) {
+  .container {
+    width: min(1120px, 94vw);
+  }
+
+  .hero-panel {
+    padding: 20px;
+  }
+
+  .company-row,
+  .company-card-lg,
+  .app-card,
+  .contact-panel,
+  .contact-form,
+  .tile,
+  .principles-grid article,
+  .split-cta {
+    padding: 18px;
+  }
+
+  .hero-actions,
+  .company-links {
+    gap: 10px;
+  }
+
+  .hero-actions .btn,
+  .section-actions .btn {
+    width: 100%;
+  }
+
+  .company-site-btn,
+  .coming-soon-chip {
+    width: auto;
+    max-width: 100%;
   }
 }
 
