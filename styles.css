@@ -97,11 +97,21 @@ a {
   place-items: center;
   width: 42px;
   height: 42px;
-  border-radius: 12px;
-  font-size: 0.88rem;
-  color: #201a11;
-  background: linear-gradient(145deg, var(--sand-300), var(--sand-500));
+  border-radius: 10px;
+  border: 1px solid rgba(221, 189, 132, 0.48);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
   box-shadow: var(--shadow-lg);
+}
+
+.brand-mark picture,
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+}
+
+.brand-mark img {
+  object-fit: cover;
 }
 
 .brand-text {
@@ -255,6 +265,21 @@ h3 {
   box-shadow: var(--shadow-lg);
 }
 
+.hero-main-image {
+  margin: 0 0 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(221, 189, 132, 0.35);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+}
+
+.hero-main-image img {
+  width: 100%;
+  height: clamp(180px, 25vw, 250px);
+  object-fit: contain;
+  object-position: center;
+}
+
 .stat-stack {
   display: grid;
   gap: 14px;
@@ -389,6 +414,20 @@ h3 {
   height: 38px;
   object-fit: contain;
   object-position: center;
+}
+
+.company-list .company-logo-btn,
+.company-list-lg .company-logo-btn {
+  min-width: 260px;
+  min-height: 60px;
+  padding: 10px 16px;
+  border-radius: 14px;
+}
+
+.company-list .company-logo-btn img,
+.company-list-lg .company-logo-btn img {
+  width: 220px;
+  height: 56px;
 }
 
 .company-site-btn:hover,
@@ -689,6 +728,11 @@ h3 {
 
   .brand-text {
     font-size: 0.8rem;
+  }
+
+  .company-list .company-logo-btn,
+  .company-list-lg .company-logo-btn {
+    min-width: 100%;
   }
 }
 
