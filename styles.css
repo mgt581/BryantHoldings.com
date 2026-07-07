@@ -994,18 +994,27 @@ h3 {
 }
 
 .ai-chat-popup--minimized {
-  width: min(230px, calc(100vw - 24px));
-  padding: 12px;
+  width: min(152px, calc(100vw - 16px));
+  padding: 8px 9px;
+  border-radius: 14px;
 }
 
 .ai-chat-popup--minimized .ai-chat-popup__tag {
-  margin-bottom: 0;
+  display: none;
 }
 
 .ai-chat-popup--minimized h2 {
-  margin: 8px 0 0;
-  font-size: 1rem;
+  display: none;
 }
+
+.ai-chat-popup--minimized .ai-chat-popup__top {
+  justify-content: center;
+}
+
+.ai-chat-popup--minimized .ai-chat-popup__toggle {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 0.68rem;
 
 .ai-chat-popup p {
   margin: 0;
