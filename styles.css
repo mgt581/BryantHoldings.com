@@ -294,15 +294,17 @@ h3 {
 .hero-main-image {
   margin: 0 0 28px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(221, 189, 132, 0.46);
-  background: rgba(255, 255, 255, 0.06);
-  padding: clamp(16px, 1.8vw, 24px);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
 }
 
 .hero-main-image img {
   width: 100%;
-  height: clamp(160px, 28vw, 280px);
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
 }
 
@@ -967,10 +969,6 @@ h3 {
 
   .hero-grid-wrap {
     gap: 28px;
-  }
-
-  .hero-main-image img {
-    height: clamp(140px, 44vw, 240px);
   }
 
   .company-list,
