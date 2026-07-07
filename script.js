@@ -197,6 +197,31 @@ const initGallerySlideshows = () => {
       return;
     }
 
+    const controls = document.createElement('div');
+    controls.className = 'gallery-controls';
+
+    const counter = document.createElement('p');
+    counter.className = 'gallery-counter';
+
+    const dots = document.createElement('div');
+    dots.className = 'gallery-dots';
+
+    slides.forEach((slide, slideIndex) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'gallery-dot';
+      dot.setAttribute('aria-label', `Go to slide ${slideIndex + 1}`);
+      dot.addEventListener('click', () => {
+        showSlide(slideIndex);
+        restartAuto();
+      });
+      dots.appendChild(dot);
+      slide.dataset.index = String(slideIndex + 1);
+    });
+
+    controls.append(counter, dots);
+    slideshow.appendChild(controls);
+
     let index = 0;
     let timer = null;
 
@@ -204,6 +229,11 @@ const initGallerySlideshows = () => {
       slides[index].classList.remove('active');
       index = (targetIndex + slides.length) % slides.length;
       slides[index].classList.add('active');
+
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      dots.querySelectorAll('.gallery-dot').forEach((dot, dotIndex) => {
+        dot.classList.toggle('active', dotIndex === index);
+      });
     };
 
     const startAuto = () => {
@@ -229,6 +259,7 @@ const initGallerySlideshows = () => {
       restartAuto();
     });
 
+    showSlide(0);
     startAuto();
   });
 };

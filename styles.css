@@ -900,6 +900,58 @@ h3 {
   right: 10px;
 }
 
+.gallery-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.gallery-counter {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 20, 24, 0.78);
+  color: var(--mist-100);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  pointer-events: auto;
+}
+
+.gallery-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.gallery-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.34);
+  cursor: pointer;
+  padding: 0;
+}
+
+.gallery-dot.active {
+  background: var(--sand-300);
+  transform: scale(1.18);
+}
+
+.gallery-dot:hover,
+.gallery-dot:focus-visible {
+  background: var(--sand-400);
+}
+
 .site-footer {
   margin-top: 20px;
   padding: 40px 0 16px;
@@ -1382,6 +1434,11 @@ h3 {
   .gallery-nav {
     width: 32px;
     height: 32px;
+  }
+
+  .gallery-controls {
+    bottom: 8px;
+    gap: 6px;
   }
 
   .ai-chat-popup {
