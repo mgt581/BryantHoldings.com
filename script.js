@@ -177,7 +177,7 @@ const createAiChatPopup = () => {
     const isMinimized = popup.classList.toggle('ai-chat-popup--minimized');
     toggleButton.setAttribute('aria-expanded', String(!isMinimized));
     toggleButton.setAttribute('aria-label', isMinimized ? 'Expand chat' : 'Minimize chat');
-    toggleButton.textContent = isMinimized ? 'Open' : 'Minimize';
+    toggleButton.textContent = isMinimized ? '💬' : 'Minimize';
     chatContent.hidden = isMinimized;
   });
 };
