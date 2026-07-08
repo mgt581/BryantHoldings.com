@@ -106,7 +106,7 @@ const createAiChatPopup = () => {
         <button type="submit">Send</button>
       </form>
       <div class="ai-chat-popup__actions">
-        <a href="contact.html?v=20260707">Contact Us</a>
+        <a href="contact.html">Contact Us</a>
         <a href="tel:07843969254">Call 07843969254</a>
       </div>
     </div>
