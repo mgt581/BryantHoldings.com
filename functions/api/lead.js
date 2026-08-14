@@ -31,9 +31,15 @@ export async function onRequestPost({ request, env }) {
   const leadId = inserted && inserted.meta ? Number(inserted.meta.last_row_id || 0) : 0;
   const errors = [];
   let delivered = false;
+  let deliveryCode = 'unknown';
   const destinations = clean(env.LEAD_TO_EMAILS).split(',').map(value => value.trim()).filter(Boolean);
-  if (!env.RESEND_API_KEY) errors.push('RESEND_API_KEY is not configured');
-  else if (!destinations.length) errors.push('LEAD_TO_EMAILS is not configured');
+  if (!env.RESEND_API_KEY) {
+    deliveryCode = 'resend_key_missing';
+    errors.push('RESEND_API_KEY is not configured');
+  } else if (!destinations.length) {
+    deliveryCode = 'destination_missing';
+    errors.push('LEAD_TO_EMAILS is not configured');
+  }
   else {
     const fields = [['Name',lead.name],['Phone',lead.phone],['Email',lead.email],['Service',lead.service],
       ['Postcode',lead.postcode],['Message',lead.message],['Page',lead.page],['Source',lead.utm_source || lead.source],
@@ -50,9 +56,16 @@ export async function onRequestPost({ request, env }) {
           text: body
         })
       });
-      if (!response.ok) throw new Error('Resend returned ' + response.status);
+      if (!response.ok) {
+        deliveryCode = 'resend_http_' + response.status;
+        throw new Error('Resend returned ' + response.status);
+      }
       delivered = true;
-    } catch (error) { errors.push(error instanceof Error ? error.message : String(error)); }
+      deliveryCode = 'delivered';
+    } catch (error) {
+      if (deliveryCode === 'unknown') deliveryCode = 'resend_network_error';
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
   }
 
   await env.LEADS_DB.prepare('UPDATE leads SET delivery_status=?, delivery_errors=? WHERE id=?')
@@ -61,7 +74,10 @@ export async function onRequestPost({ request, env }) {
     event_name: delivered ? 'generate_lead' : 'lead_delivery_failed',
     medium: lead.utm_medium, campaign: lead.utm_campaign, term: lead.utm_term, content: lead.utm_content
   }));
-  if (!delivered) return json({ error: 'Your enquiry was stored, but online delivery failed. Please call or message us.' }, 502);
+  if (!delivered) return json({
+    error: 'Your enquiry was stored, but online delivery failed. Please call or message us.',
+    delivery_code: deliveryCode
+  }, 502);
   return json({ ok: true });
 }
 
