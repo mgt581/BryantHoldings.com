@@ -49,6 +49,7 @@ test('Facebook and click-id attribution use the proven source inference', () => 
 test('Access or bearer auth works while query-string tokens never authenticate', async () => {
   const env = { CLOUDFLARE_ACCESS_ENABLED: 'true', LEADS_EXPORT_TOKEN: 'preview-secret' };
   assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { 'cf-access-jwt-assertion': 'preview-jwt' } }), env), true);
+  assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { cookie: 'CF_Authorization=preview-cookie' } }), env), true);
   assert.equal(await adminAllowed(new Request('https://example.test/api/dashboard', { headers: { authorization: 'Bearer preview-secret' } }), env), true);
   assert.equal(await adminAllowed(new Request('https://example.test/api/dashboard?token=preview-secret'), env), false);
 });

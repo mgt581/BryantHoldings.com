@@ -30,7 +30,10 @@ async function secretsMatch(left, right) {
 
 export async function adminAllowed(request, env) {
   const accessEnabled = clean(env.CLOUDFLARE_ACCESS_ENABLED).toLowerCase() === 'true';
-  const hasAccess = accessEnabled && clean(request.headers.get('cf-access-jwt-assertion'));
+  const hasAccess = accessEnabled && (
+    clean(request.headers.get('cf-access-jwt-assertion')) ||
+    clean(request.headers.get('cookie')).toLowerCase().includes('cf_authorization=')
+  );
   if (hasAccess) return true;
   const configured = clean(env.LEADS_EXPORT_TOKEN);
   const authorization = clean(request.headers.get('authorization'));
