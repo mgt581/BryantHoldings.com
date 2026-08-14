@@ -22,6 +22,14 @@ test('all public HTML pages load tracking exactly once and dashboard does not', 
   const dashboard = await readFile(new URL('dashboard.html', root), 'utf8');
   assert.doesNotMatch(dashboard, /lead-tracking\.js/);
   assert.match(dashboard, /noindex,nofollow/i);
+  for (const feature of [
+    'Download leads CSV', 'Download events CSV', 'Lead trend', 'Lead pipeline',
+    'Revenue by lead origin', 'Services requested', 'Top landing pages',
+    'Event activity', 'Recent leads', 'Recent activity', 'Form submits',
+    'Chat leads', 'Won revenue'
+  ]) assert.match(dashboard, new RegExp(feature), feature);
+  for (const status of STATUSES) assert.match(dashboard, new RegExp("'" + status + "'"), status);
+  assert.match(dashboard, /credentials:'same-origin'/);
 });
 
 test('real forms use the API, retain validation and expose no admin token', async () => {
@@ -49,6 +57,7 @@ test('Facebook and click-id attribution use the proven source inference', () => 
 test('Access or bearer auth works while query-string tokens never authenticate', async () => {
   const env = { CLOUDFLARE_ACCESS_ENABLED: 'true', LEADS_EXPORT_TOKEN: 'preview-secret' };
   assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { 'cf-access-jwt-assertion': 'preview-jwt' } }), env), true);
+  assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { cookie: 'CF_Authorization=preview-cookie' } }), env), true);
   assert.equal(await adminAllowed(new Request('https://example.test/api/dashboard', { headers: { authorization: 'Bearer preview-secret' } }), env), true);
   assert.equal(await adminAllowed(new Request('https://example.test/api/dashboard?token=preview-secret'), env), false);
 });
