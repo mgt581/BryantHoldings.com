@@ -1,0 +1,12 @@
+{
+  "name": "bryant-holdings-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check:secrets": "node tests/secret-scan.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
