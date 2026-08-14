@@ -15,7 +15,22 @@ const origin = `CASE
   ELSE 'direct / unknown' END`;
 
 export async function onRequestGet({ request, env }) {
-  if (!await adminAllowed(request, env)) return text('Unauthorized.', 401);
+  if (!await adminAllowed(request, env)) {
+    const traceRequested = new URL(request.url).searchParams.get('auth_trace') === '1';
+    if (traceRequested) {
+      return json({
+        ok: false,
+        error: 'Unauthorized.',
+        auth_trace: {
+          access_enabled: String(env.CLOUDFLARE_ACCESS_ENABLED || '').trim().toLowerCase() === 'true',
+          access_jwt_present: Boolean(String(request.headers.get('cf-access-jwt-assertion') || '').trim()),
+          access_cookie_present: String(request.headers.get('cookie') || '').toLowerCase().includes('cf_authorization='),
+          access_identity_present: Boolean(String(request.headers.get('cf-access-authenticated-user-email') || '').trim())
+        }
+      }, 401);
+    }
+    return text('Unauthorized.', 401);
+  }
   if (!env.LEADS_DB) return text('Lead storage is not configured.', 503);
   await ensureSchema(env.LEADS_DB);
 
