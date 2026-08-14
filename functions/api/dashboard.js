@@ -31,6 +31,8 @@ export async function onRequestGet({ request, env }) {
     generated_at: new Date().toISOString(),
     totals: totals[0] || {},
     event_totals: eventTotals,
+    daily_leads: await all(env.LEADS_DB, `SELECT SUBSTR(submitted_at,1,10) day,COUNT(*) count
+      FROM leads GROUP BY SUBSTR(submitted_at,1,10) ORDER BY day DESC LIMIT 30`),
     pipeline_summary: await all(env.LEADS_DB, 'SELECT lead_status status,COUNT(*) count FROM leads GROUP BY lead_status ORDER BY count DESC'),
     origin_summary: await all(env.LEADS_DB, `SELECT ${origin} origin,COUNT(*) count FROM leads GROUP BY ${origin} ORDER BY count DESC LIMIT 20`),
     revenue_origin_summary: await all(env.LEADS_DB, `SELECT ${origin} origin,COUNT(*) leads,
