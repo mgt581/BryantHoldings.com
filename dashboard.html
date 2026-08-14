@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Lead Dashboard</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0f1720;--panel:#18222d;--line:#334155;--accent:#4e9645}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:#edf2f7;font:15px/1.45 Arial,sans-serif}
+    main{max-width:1320px;margin:auto;padding:24px}h1{margin:.2rem 0}.muted{color:#aab8c5}
+    .actions,.metrics{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}.button,button{border:0;border-radius:9px;padding:9px 12px;background:var(--accent);color:white;font-weight:700;text-decoration:none;cursor:pointer}
+    .metric,.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}.metric{min-width:150px}
+    .metric strong{display:block;font-size:1.7rem}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.wide{grid-column:1/-1}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+    select,input{max-width:125px;padding:7px;background:#243444;color:white;border:1px solid var(--line);border-radius:7px}
+    .controls{display:flex;gap:6px;min-width:480px}@media(max-width:800px){.grid{grid-template-columns:1fr}.controls{min-width:420px}}
+  </style>
+</head>
+<body><main>
+  <p class="muted">Private lead dashboard</p><h1 id="title">Lead Tracking</h1>
+  <p class="muted">Cloudflare Access must protect this page and all admin API routes.</p>
+  <div class="actions"><a class="button" href="/api/leads/export">Leads CSV</a><a class="button" href="/api/lead-events/export">Events CSV</a></div>
+  <p id="notice"></p><section class="metrics" id="metrics"></section>
+  <section class="grid">
+    <article class="card"><h2>Pipeline</h2><table><tbody id="pipeline"></tbody></table></article>
+    <article class="card"><h2>Lead origins</h2><table><tbody id="origins"></tbody></table></article>
+    <article class="card wide"><h2>Revenue by origin</h2><table><tbody id="revenue"></tbody></table></article>
+    <article class="card wide"><h2>Recent leads</h2><div style="overflow:auto"><table><tbody id="leads"></tbody></table></div></article>
+    <article class="card wide"><h2>Recent activity</h2><div style="overflow:auto"><table><tbody id="events"></tbody></table></div></article>
+  </section>
+<script src="/site-config.js"></script>
+<script>
+(function(){
+  var statuses=['TEST','NEW','GENUINE','SPAM','CONTACTED','QUOTED','WON','LOST'];
+  var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})};
+  var money=function(p){return '£'+(Number(p||0)/100).toFixed(2)};
+  if(window.LEADGEN_CONFIG&&window.LEADGEN_CONFIG.businessName) document.getElementById('title').textContent=window.LEADGEN_CONFIG.businessName+' — Lead Tracking';
+  fetch('/api/dashboard',{headers:{accept:'application/json'}}).then(function(r){if(!r.ok)throw Error('Admin sign-in required.');return r.json()}).then(function(d){
+    var t=d.totals||{};document.getElementById('metrics').innerHTML=[
+      ['Leads',t.leads],['Delivered',t.delivered_leads],['Failed',t.failed_leads],['Won',t.won_leads],
+      ['Quoted',money(t.quoted_value_pence)],['Won revenue',money(t.won_revenue_pence)],
+      ['Page views',(d.event_totals||{}).page_view||0],['Phone',(d.event_totals||{}).phone_click||0],
+      ['WhatsApp',(d.event_totals||{}).whatsapp_click||0],['Email',(d.event_totals||{}).email_click||0]
+    ].map(function(x){return '<article class="metric">'+esc(x[0])+'<strong>'+esc(x[1]||0)+'</strong></article>'}).join('');
+    document.getElementById('pipeline').innerHTML='<tr><th>Status</th><th>Leads</th></tr>'+(d.pipeline_summary||[]).map(function(x){return '<tr><td>'+esc(x.status)+'</td><td>'+esc(x.count)+'</td></tr>'}).join('');
+    document.getElementById('origins').innerHTML='<tr><th>Origin</th><th>Leads</th></tr>'+(d.origin_summary||[]).map(function(x){return '<tr><td>'+esc(x.origin)+'</td><td>'+esc(x.count)+'</td></tr>'}).join('');
+    document.getElementById('revenue').innerHTML='<tr><th>Origin</th><th>Leads</th><th>Won</th><th>Quoted</th><th>Revenue</th></tr>'+(d.revenue_origin_summary||[]).map(function(x){return '<tr><td>'+esc(x.origin)+'</td><td>'+esc(x.leads)+'</td><td>'+esc(x.won_leads)+'</td><td>'+money(x.quote_value_pence)+'</td><td>'+money(x.won_revenue_pence)+'</td></tr>'}).join('');
+    document.getElementById('leads').innerHTML='<tr><th>Time</th><th>Name</th><th>Service</th><th>Source</th><th>Delivery</th><th>Pipeline / values</th></tr>'+(d.recent_leads||[]).map(function(x){return '<tr><td>'+esc(x.submitted_at)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.service)+'</td><td>'+esc(x.utm_source||x.source)+'</td><td>'+esc(x.delivery_status)+'</td><td><div class="controls" data-id="'+esc(x.id)+'"><select aria-label="Lead status">'+statuses.map(function(s){return '<option'+(s===x.lead_status?' selected':'')+'>'+s+'</option>'}).join('')+'</select><input aria-label="Quote value" type="number" min="0" step=".01" value="'+(Number(x.quote_value_pence||0)/100).toFixed(2)+'"><input aria-label="Won revenue" type="number" min="0" step=".01" value="'+(Number(x.won_revenue_pence||0)/100).toFixed(2)+'"><button>Save</button></div></td></tr>'}).join('');
+    document.getElementById('events').innerHTML='<tr><th>Time</th><th>Event</th><th>Page</th><th>Detail</th></tr>'+(d.recent_events||[]).map(function(x){return '<tr><td>'+esc(x.occurred_at)+'</td><td>'+esc(x.event_name)+'</td><td>'+esc(x.page)+'</td><td>'+esc(x.link_text||x.service||x.campaign)+'</td></tr>'}).join('');
+  }).catch(function(e){document.getElementById('notice').textContent=e.message});
+  document.getElementById('leads').addEventListener('click',function(e){if(e.target.tagName!=='BUTTON')return;var c=e.target.closest('[data-id]'),i=c.querySelectorAll('input');e.target.disabled=true;fetch('/api/leads/'+c.dataset.id,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({lead_status:c.querySelector('select').value,quote_value_pence:Math.round(Number(i[0].value||0)*100),won_revenue_pence:Math.round(Number(i[1].value||0)*100)})}).then(function(r){if(!r.ok)throw Error('Update failed');location.reload()}).catch(function(e){document.getElementById('notice').textContent=e.message});
+  });
+})();
+</script></main></body></html>
