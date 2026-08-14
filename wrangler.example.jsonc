@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "bryant-holdings-preview",
+  "pages_build_output_dir": ".",
+  "compatibility_date": "2026-08-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "LEADS_DB",
+      "database_name": "bryant-holdings-leads-preview",
+      "database_id": "REPLACE_WITH_PREVIEW_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
