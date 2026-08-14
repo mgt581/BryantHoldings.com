@@ -296,7 +296,8 @@ const initLeadForms = () => {
       });
 
       try {
-        const response = await fetch('/api/lead', {
+        const leadEndpoint = window.LEADGEN_CONFIG?.leadEndpoint || form.action || '/api/lead';
+        const response = await fetch(leadEndpoint, {
           method: 'POST',
           headers: { 'content-type': 'application/json', accept: 'application/json' },
           body: JSON.stringify(payload)

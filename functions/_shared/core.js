@@ -11,6 +11,39 @@ export function json(body, status = 200) {
   });
 }
 
+function publicOriginAllowed(origin) {
+  if (!origin) return false;
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== 'https:') return false;
+    if (url.hostname === 'bryantgroupholdings.co.uk' || url.hostname === 'www.bryantgroupholdings.co.uk') return true;
+    return url.hostname === 'bryantholdings-com.pages.dev' || url.hostname.endsWith('.bryantholdings-com.pages.dev');
+  } catch (_) {
+    return false;
+  }
+}
+
+export function withPublicCors(response, request) {
+  const origin = clean(request.headers.get('origin'));
+  if (!publicOriginAllowed(origin)) return response;
+  const headers = new Headers(response.headers);
+  headers.set('access-control-allow-origin', origin);
+  headers.set('access-control-allow-methods', 'POST, OPTIONS');
+  headers.set('access-control-allow-headers', 'content-type, accept');
+  headers.append('vary', 'Origin');
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
+export function publicCorsPreflight(request) {
+  const origin = clean(request.headers.get('origin'));
+  if (!publicOriginAllowed(origin)) return json({ error: 'Origin is not allowed.' }, 403);
+  return withPublicCors(new Response(null, { status: 204 }), request);
+}
+
 export function text(body, status = 200, type = 'text/plain; charset=utf-8') {
   return new Response(body, { status, headers: { 'content-type': type, 'cache-control': 'no-store' } });
 }

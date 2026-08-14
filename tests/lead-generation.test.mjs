@@ -3,8 +3,8 @@ import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 
 import { adminAllowed, normalizeLead, STATUSES } from '../functions/_shared/core.js';
-import { onRequestPost as storeEvent } from '../functions/api/lead-event.js';
-import { onRequestPost as storeLead } from '../functions/api/lead.js';
+import { onRequestOptions as eventPreflight, onRequestPost as storeEvent } from '../functions/api/lead-event.js';
+import { onRequestOptions as leadPreflight, onRequestPost as storeLead } from '../functions/api/lead.js';
 import { onRequestPatch as updateLead } from '../functions/api/leads/[id].js';
 import { onRequestGet as exportLeads } from '../functions/api/leads/export.js';
 import { onRequestGet as exportEvents } from '../functions/api/lead-events/export.js';
@@ -41,10 +41,30 @@ test('real forms use the API, retain validation and expose no admin token', asyn
     assert.doesNotMatch(html, /action="mailto:/i);
   }
   const source = await readFile(new URL('script.js', root), 'utf8');
+  const config = await readFile(new URL('site-config.js', root), 'utf8');
   assert.match(source, /LeadGen\.getAttribution/);
   assert.match(source, /form_name/);
-  assert.match(source, /fetch\('\/api\/lead'/);
+  assert.match(source, /LEADGEN_CONFIG\?\.leadEndpoint/);
+  assert.match(config, /leadEndpoint: 'https:\/\/bryantholdings-com\.pages\.dev\/api\/lead'/);
+  assert.match(config, /eventEndpoint: 'https:\/\/bryantholdings-com\.pages\.dev\/api\/lead-event'/);
   assert.doesNotMatch(source, /LEADS_EXPORT_TOKEN|RESEND_API_KEY/);
+});
+
+test('public ingestion CORS allows only the live site and its Cloudflare Pages hosts', async () => {
+  for (const preflight of [leadPreflight, eventPreflight]) {
+    const allowed = await preflight({ request: new Request('https://bryantholdings-com.pages.dev/api/lead', {
+      method: 'OPTIONS', headers: { origin: 'https://bryantgroupholdings.co.uk' }
+    }) });
+    assert.equal(allowed.status, 204);
+    assert.equal(allowed.headers.get('access-control-allow-origin'), 'https://bryantgroupholdings.co.uk');
+    assert.notEqual(allowed.headers.get('access-control-allow-origin'), '*');
+
+    const blocked = await preflight({ request: new Request('https://bryantholdings-com.pages.dev/api/lead', {
+      method: 'OPTIONS', headers: { origin: 'https://attacker.example' }
+    }) });
+    assert.equal(blocked.status, 403);
+    assert.equal(blocked.headers.get('access-control-allow-origin'), null);
+  }
 });
 
 test('Facebook and click-id attribution use the proven source inference', () => {

@@ -58,10 +58,12 @@
     if (options && options.store === false) return;
     var endpoint = clean(config.eventEndpoint || '/api/lead-event');
     var body = JSON.stringify(payload);
-    if (navigator.sendBeacon) {
-      try { if (navigator.sendBeacon(endpoint, new Blob([body], { type: 'application/json' }))) return; } catch (_) {}
+    var endpointUrl;
+    try { endpointUrl = new URL(endpoint, location.href); } catch (_) { return; }
+    if (endpointUrl.origin === location.origin && navigator.sendBeacon) {
+      try { if (navigator.sendBeacon(endpointUrl.href, new Blob([body], { type: 'application/json' }))) return; } catch (_) {}
     }
-    fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
+    fetch(endpointUrl.href, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body, keepalive: true }).catch(function () {});
   }
 
   function loadTagManager() {
