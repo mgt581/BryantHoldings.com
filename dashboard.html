@@ -37,7 +37,13 @@
   var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})};
   var money=function(p){return '£'+(Number(p||0)/100).toFixed(2)};
   if(window.LEADGEN_CONFIG&&window.LEADGEN_CONFIG.businessName) document.getElementById('title').textContent=window.LEADGEN_CONFIG.businessName+' — Lead Tracking';
-  fetch('/api/dashboard',{headers:{accept:'application/json'}}).then(function(r){if(!r.ok)throw Error('Admin sign-in required.');return r.json()}).then(function(d){
+  fetch('/api/dashboard',{headers:{accept:'application/json'},credentials:'same-origin'}).then(function(r){
+    if(r.ok)return r.json();
+    return r.text().then(function(message){
+      if(r.status===401)throw Error('Admin sign-in required.');
+      throw Error('Dashboard API error '+r.status+': '+(message||'Unknown error'));
+    });
+  }).then(function(d){
     var t=d.totals||{};document.getElementById('metrics').innerHTML=[
       ['Leads',t.leads],['Delivered',t.delivered_leads],['Failed',t.failed_leads],['Won',t.won_leads],
       ['Quoted',money(t.quoted_value_pence)],['Won revenue',money(t.won_revenue_pence)],
