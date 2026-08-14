@@ -37,7 +37,7 @@
   var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})};
   var money=function(p){return '£'+(Number(p||0)/100).toFixed(2)};
   if(window.LEADGEN_CONFIG&&window.LEADGEN_CONFIG.businessName) document.getElementById('title').textContent=window.LEADGEN_CONFIG.businessName+' — Lead Tracking';
-  fetch('/api/dashboard?auth_trace=1',{headers:{accept:'application/json'},credentials:'same-origin'}).then(function(r){
+  fetch('/api/dashboard',{headers:{accept:'application/json'},credentials:'same-origin'}).then(function(r){
     if(r.ok)return r.json();
     return r.text().then(function(message){
       throw Error('Dashboard API error '+r.status+': '+(message||'Unknown error'));
