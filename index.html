@@ -361,7 +361,7 @@
             <p>Response time: Typically within 1 business day.</p>
           </article>
 
-          <form class="contact-form reveal" action="/api/lead" method="post" data-lead-form data-source="website-home" aria-label="Homepage contact form">
+          <form class="contact-form reveal" action="/api/lead" method="post" data-lead-form data-source="website-home" data-success-url="/thank-you.html" aria-label="Homepage contact form">
             <label for="name">Full Name</label>
             <input id="name" name="name" type="text" required />
 
@@ -387,7 +387,7 @@
               <input id="website-home" name="website" type="text" tabindex="-1" autocomplete="off" />
             </div>
 
-            <p data-form-status role="status" aria-live="polite" hidden></p>
+            <p class="form-status" data-form-status role="status" aria-live="polite" hidden></p>
 
             <button class="btn btn-primary" type="submit">Send Enquiry</button>
           </form>

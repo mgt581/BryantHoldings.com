@@ -13,7 +13,7 @@ const root = new URL('../', import.meta.url);
 
 test('all public HTML pages load tracking exactly once and dashboard does not', async () => {
   const files = (await readdir(root)).filter((file) => file.endsWith('.html') && file !== 'dashboard.html');
-  assert.deepEqual(files.sort(), ['about.html', 'companies.html', 'contact.html', 'gallery.html', 'index.html', 'privacy.html']);
+  assert.deepEqual(files.sort(), ['about.html', 'companies.html', 'contact.html', 'gallery.html', 'index.html', 'privacy.html', 'thank-you.html']);
   for (const file of files) {
     const html = await readFile(new URL(file, root), 'utf8');
     assert.equal((html.match(/src="lead-tracking\.js"/g) || []).length, 1, file);
@@ -38,6 +38,7 @@ test('real forms use the API, retain validation and expose no admin token', asyn
     assert.match(html, /data-lead-form/);
     assert.match(html, /action="\/api\/lead"/);
     assert.match(html, /name="website"/);
+    assert.match(html, /data-success-url="\/thank-you\.html"/);
     assert.doesNotMatch(html, /action="mailto:/i);
   }
   const source = await readFile(new URL('script.js', root), 'utf8');
@@ -45,9 +46,16 @@ test('real forms use the API, retain validation and expose no admin token', asyn
   assert.match(source, /LeadGen\.getAttribution/);
   assert.match(source, /form_name/);
   assert.match(source, /LEADGEN_CONFIG\?\.leadEndpoint/);
+  assert.match(source, /if \(!response\.ok \|\| !result\.ok\) throw/);
+  assert.match(source, /window\.location\.assign\(successPage\)/);
   assert.match(config, /leadEndpoint: 'https:\/\/bryantholdings-com\.pages\.dev\/api\/lead'/);
   assert.match(config, /eventEndpoint: 'https:\/\/bryantholdings-com\.pages\.dev\/api\/lead-event'/);
   assert.doesNotMatch(source, /LEADS_EXPORT_TOKEN|RESEND_API_KEY/);
+
+  const success = await readFile(new URL('thank-you.html', root), 'utf8');
+  assert.match(success, /Enquiry received/i);
+  assert.match(success, /noindex,nofollow/i);
+  assert.match(success, /Return to homepage/i);
 });
 
 test('public ingestion CORS allows only the live site and its Cloudflare Pages hosts', async () => {

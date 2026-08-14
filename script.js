@@ -275,6 +275,7 @@ const initLeadForms = () => {
       const button = form.querySelector('button[type="submit"]');
       const status = form.querySelector('[data-form-status]');
       const originalText = button?.textContent || 'Send Enquiry';
+      const successPage = form.dataset.successUrl || '/thank-you.html';
       const payload = Object.fromEntries(new FormData(form).entries());
       payload.service = payload.interest || payload.service || 'General Enquiry';
       payload.form_name = form.getAttribute('aria-label') || form.id || 'Website form';
@@ -307,7 +308,8 @@ const initLeadForms = () => {
 
         window.LeadGen?.trackLead(payload.form_name);
         form.reset();
-        if (status) status.textContent = 'Thank you. Your enquiry has been received and we will reply within one business day.';
+        if (status) status.textContent = 'Thank you. Your enquiry has been received. Taking you to confirmation…';
+        window.location.assign(successPage);
       } catch (error) {
         window.LeadGen?.trackEvent('lead_form_error', {
           service: payload.service,
