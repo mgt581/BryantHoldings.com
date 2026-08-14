@@ -46,6 +46,7 @@ all eight statuses, revenue fields and both CSV downloads.
 
 ## Production gate
 
-Production remains GitHub Pages and is not changed by this branch. Promotion requires a deliberate hosting
-decision because GitHub Pages cannot execute Pages Functions; production must either move to Cloudflare Pages
-from the same GitHub source or use a separately routed Cloudflare Worker API.
+Production is served by the Cloudflare Pages project on `bryantgroupholdings.co.uk`. Keep the public lead
+endpoint same-origin (`/api/lead`) so browser privacy settings, ad-platform in-app browsers and CORS do not
+interrupt an enquiry. Bind the production database `bryant-holdings-leads` as `LEADS_DB` in the production
+environment; the preview database remains isolated for preview deployments.
