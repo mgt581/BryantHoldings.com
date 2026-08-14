@@ -48,8 +48,8 @@ test('real forms use the API, retain validation and expose no admin token', asyn
   assert.match(source, /LEADGEN_CONFIG\?\.leadEndpoint/);
   assert.match(source, /if \(!response\.ok \|\| !result\.ok\) throw/);
   assert.match(source, /window\.location\.assign\(successPage\)/);
-  assert.match(config, /leadEndpoint: 'https:\/\/bryantholdings-com\.pages\.dev\/api\/lead'/);
-  assert.match(config, /eventEndpoint: 'https:\/\/bryantholdings-com\.pages\.dev\/api\/lead-event'/);
+  assert.match(config, /leadEndpoint: '\/api\/lead'/);
+  assert.match(config, /eventEndpoint: '\/api\/lead-event'/);
   assert.doesNotMatch(source, /LEADS_EXPORT_TOKEN|RESEND_API_KEY/);
 
   const success = await readFile(new URL('thank-you.html', root), 'utf8');
