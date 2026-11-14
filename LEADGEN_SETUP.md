@@ -19,7 +19,13 @@ Set these preview variables:
 - `LEAD_TO_EMAILS=ajbryantsleads@gmail.com`
 - `CLOUDFLARE_ACCESS_ENABLED=true`
 
-Add `RESEND_API_KEY` and `LEADS_EXPORT_TOKEN` as encrypted preview secrets. Never commit them, paste them
+Add `RESEND_API_KEY`, `LEADS_EXPORT_TOKEN` and `IP_HASH_SECRET` (any long random string) as encrypted
+secrets. `IP_HASH_SECRET` keys the stored IP hashes; if it is missing, `LEADS_EXPORT_TOKEN` is used instead.
+
+For Cloudflare Access sign-in on the dashboard, also set `CF_ACCESS_TEAM_DOMAIN` (e.g.
+`yourteam.cloudflareaccess.com`) and `CF_ACCESS_AUD` (the Access application's Audience tag). The functions
+verify the Access JWT signature, issuer, audience and expiry; without these two values only the bearer
+token works. The dashboard page has a sign-in box that sends `LEADS_EXPORT_TOKEN` as a Bearer header. Never commit them, paste them
 into a URL, or expose them to browser JavaScript.
 
 ## Resend

@@ -1,4 +1,4 @@
-import { clean, ensureSchema, insertEvent, json, publicCorsPreflight, withPublicCors } from '../_shared/core.js';
+import { clean, ensureSchema, hashIp, insertEvent, json, overRateLimit, publicCorsPreflight, withPublicCors } from '../_shared/core.js';
 
 const ALLOWED = [
   'page_view', 'quote_cta_click', 'phone_click', 'whatsapp_click', 'email_click',
@@ -13,7 +13,9 @@ export async function onRequestPost({ request, env }) {
   const eventName = clean(payload.event_name || payload.event, 80);
   if (!ALLOWED.includes(eventName)) return reply({ ok: false, error: 'Unsupported event.' }, 400);
   await ensureSchema(env.LEADS_DB);
-  await insertEvent(env.LEADS_DB, request, Object.assign({}, payload, { event_name: eventName }));
+  const ipHash = await hashIp(request.headers.get('cf-connecting-ip') || '', env);
+  if (await overRateLimit(env.LEADS_DB, 'events', ipHash, 300, 60)) return reply({ ok: false, error: 'Rate limited.' }, 429);
+  await insertEvent(env.LEADS_DB, request, Object.assign({}, payload, { event_name: eventName }), ipHash);
   return reply({ ok: true });
 }
 

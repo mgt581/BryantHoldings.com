@@ -1,4 +1,4 @@
-import { clean, ensureSchema, hashIp, insertEvent, json, normalizeLead, publicCorsPreflight, withPublicCors } from '../_shared/core.js';
+import { clean, ensureSchema, hashIp, insertEvent, json, normalizeLead, overRateLimit, publicCorsPreflight, withPublicCors } from '../_shared/core.js';
 
 export function onRequestOptions({ request }) {
   return publicCorsPreflight(request);
@@ -15,7 +15,10 @@ export async function onRequestPost({ request, env }) {
   if ((!lead.phone && !lead.email) || !lead.name) return reply({ error: 'Please provide a name and phone or email.' }, 400);
 
   await ensureSchema(env.LEADS_DB);
-  const ipHash = await hashIp(request.headers.get('cf-connecting-ip') || '');
+  const ipHash = await hashIp(request.headers.get('cf-connecting-ip') || '', env);
+  if (await overRateLimit(env.LEADS_DB, 'leads', ipHash, 5, 60)) {
+    return reply({ error: 'Too many enquiries from this connection. Please call or email us instead.' }, 429);
+  }
   let inserted;
   try {
     inserted = await env.LEADS_DB.prepare(`INSERT INTO leads (
@@ -65,7 +68,7 @@ export async function onRequestPost({ request, env }) {
   await insertEvent(env.LEADS_DB, request, Object.assign({}, lead, {
     event_name: delivered ? 'generate_lead' : 'lead_delivery_failed',
     medium: lead.utm_medium, campaign: lead.utm_campaign, term: lead.utm_term, content: lead.utm_content
-  }));
+  }), ipHash);
   if (!delivered) return reply({ error: 'Your enquiry was stored, but online delivery failed. Please call or message us.' }, 502);
   return reply({ ok: true });
 }

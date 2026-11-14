@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
 
-import { adminAllowed, normalizeLead, STATUSES } from '../functions/_shared/core.js';
+import { adminAllowed, hashIp, normalizeLead, overRateLimit, STATUSES } from '../functions/_shared/core.js';
 import { onRequestOptions as eventPreflight, onRequestPost as storeEvent } from '../functions/api/lead-event.js';
 import { onRequestOptions as leadPreflight, onRequestPost as storeLead } from '../functions/api/lead.js';
 import { onRequestPatch as updateLead } from '../functions/api/leads/[id].js';
@@ -82,12 +82,37 @@ test('Facebook and click-id attribution use the proven source inference', () => 
   assert.equal(normalizeLead({ name: 'A', email: 'a@example.test' }).source, 'direct / unknown');
 });
 
-test('Access or bearer auth works while query-string tokens never authenticate', async () => {
+test('forged Access headers or cookies never authenticate; bearer works; query tokens never do', async () => {
   const env = { CLOUDFLARE_ACCESS_ENABLED: 'true', LEADS_EXPORT_TOKEN: 'preview-secret' };
-  assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { 'cf-access-jwt-assertion': 'preview-jwt' } }), env), true);
-  assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { cookie: 'CF_Authorization=preview-cookie' } }), env), true);
+  assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { 'cf-access-jwt-assertion': 'preview-jwt' } }), env), false);
+  assert.equal(await adminAllowed(new Request('https://example.test/dashboard', { headers: { cookie: 'CF_Authorization=preview-cookie' } }), env), false);
   assert.equal(await adminAllowed(new Request('https://example.test/api/dashboard', { headers: { authorization: 'Bearer preview-secret' } }), env), true);
+  assert.equal(await adminAllowed(new Request('https://example.test/api/dashboard', { headers: { authorization: 'Bearer wrong' } }), env), false);
   assert.equal(await adminAllowed(new Request('https://example.test/api/dashboard?token=preview-secret'), env), false);
+});
+
+test('a correctly signed Access JWT authenticates; wrong audience, expiry or signature do not', async () => {
+  const { privateKey, publicKey } = await crypto.subtle.generateKey(
+    { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
+  const jwk = Object.assign(await crypto.subtle.exportKey('jwk', publicKey), { kid: 'test-kid' });
+  const b64 = (input) => Buffer.from(typeof input === 'string' ? input : new Uint8Array(input)).toString('base64url');
+  const sign = async (payload, key = privateKey) => {
+    const head = b64(JSON.stringify({ alg: 'RS256', kid: 'test-kid' })) + '.' + b64(JSON.stringify(payload));
+    return head + '.' + b64(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(head)));
+  };
+  const env = { CLOUDFLARE_ACCESS_ENABLED: 'true', CF_ACCESS_TEAM_DOMAIN: 'team-test.cloudflareaccess.com', CF_ACCESS_AUD: 'aud-test' };
+  const fetcher = async () => new Response(JSON.stringify({ keys: [jwk] }));
+  const now = Math.floor(Date.now() / 1000);
+  const good = { aud: ['aud-test'], iss: 'https://team-test.cloudflareaccess.com', exp: now + 600 };
+  const check = async (token, e = env) => adminAllowed(new Request('https://example.test/api/dashboard', { headers: { 'cf-access-jwt-assertion': token } }), e, fetcher);
+  assert.equal(await check(await sign(good)), true);
+  assert.equal(await check(await sign({ ...good, aud: ['other'] })), false);
+  assert.equal(await check(await sign({ ...good, exp: now - 10 })), false);
+  assert.equal(await check(await sign({ ...good, iss: 'https://evil.cloudflareaccess.com' })), false);
+  const other = await crypto.subtle.generateKey(
+    { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
+  assert.equal(await check(await sign(good, other.privateKey)), false);
+  assert.equal(await check(await sign(good), { ...env, CLOUDFLARE_ACCESS_ENABLED: 'false' }), false);
 });
 
 function eventDb(rows) {
@@ -235,4 +260,38 @@ test('contact identity and privacy disclosure are correct', async () => {
   const privacy = await readFile(new URL('privacy.html', root), 'utf8');
   assert.match(privacy, /IP addresses are converted\s+into one-way hashes/i);
   assert.match(privacy, /Resend processes notification emails/i);
+});
+
+test('IP hashes are keyed (not plain SHA-256) and blank without a secret', async () => {
+  const a = await hashIp('203.0.113.7', { IP_HASH_SECRET: 'one' });
+  const b = await hashIp('203.0.113.7', { IP_HASH_SECRET: 'two' });
+  assert.match(a, /^[0-9a-f]{64}$/);
+  assert.notEqual(a, b);
+  assert.equal(await hashIp('203.0.113.7', {}), '');
+});
+
+test('rate limit trips at the configured count and ignores unknown IPs', async () => {
+  const db = (count) => ({ prepare() { return { bind() { return { async first() { return { count }; } }; } }; } });
+  assert.equal(await overRateLimit(db(4), 'leads', 'hash', 5, 60), false);
+  assert.equal(await overRateLimit(db(5), 'leads', 'hash', 5, 60), true);
+  assert.equal(await overRateLimit(db(99), 'leads', '', 5, 60), false);
+});
+
+test('lead endpoint returns 429 when the per-IP limit is reached', async () => {
+  const db = {
+    prepare(sql) {
+      return {
+        async run() { return { success: true }; },
+        bind() { return { async first() { return { count: 5 }; }, async run() { throw new Error('should not insert'); } }; }
+      };
+    }
+  };
+  const response = await storeLead({
+    env: { LEADS_DB: db, IP_HASH_SECRET: 's' },
+    request: new Request('https://example.test/api/lead', {
+      method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': '203.0.113.7' },
+      body: JSON.stringify({ name: 'Test', email: 'test@example.test', message: 'hi' })
+    })
+  });
+  assert.equal(response.status, 429);
 });

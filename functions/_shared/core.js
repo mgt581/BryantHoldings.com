@@ -61,23 +61,83 @@ async function secretsMatch(left, right) {
   return difference === 0;
 }
 
-export async function adminAllowed(request, env) {
+function base64UrlBytes(value) {
+  const base64 = value.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(value.length / 4) * 4, '=');
+  const binary = atob(base64);
+  return Uint8Array.from(binary, char => char.charCodeAt(0));
+}
+
+function base64UrlJson(value) {
+  return JSON.parse(new TextDecoder().decode(base64UrlBytes(value)));
+}
+
+const accessKeyCache = new Map();
+
+async function accessSigningKeys(teamDomain, fetcher) {
+  const cached = accessKeyCache.get(teamDomain);
+  if (cached && cached.expires > Date.now()) return cached.keys;
+  const response = await fetcher('https://' + teamDomain + '/cdn-cgi/access/certs');
+  if (!response.ok) throw new Error('Access certs unavailable');
+  const { keys = [] } = await response.json();
+  accessKeyCache.set(teamDomain, { keys, expires: Date.now() + 10 * 60 * 1000 });
+  return keys;
+}
+
+// Verifies a Cloudflare Access JWT: RS256 signature, issuer, audience and expiry.
+// Never trust the mere presence of an Access header or cookie: anyone can send those.
+export async function verifyAccessJwt(token, env, fetcher = fetch) {
+  const teamDomain = clean(env.CF_ACCESS_TEAM_DOMAIN).replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  const audience = clean(env.CF_ACCESS_AUD);
+  if (!token || !teamDomain || !audience) return false;
+  try {
+    const [headerPart, payloadPart, signaturePart] = token.split('.');
+    if (!headerPart || !payloadPart || !signaturePart) return false;
+    const header = base64UrlJson(headerPart);
+    const payload = base64UrlJson(payloadPart);
+    if (header.alg !== 'RS256') return false;
+    const now = Math.floor(Date.now() / 1000);
+    const audiences = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+    if (!audiences.includes(audience)) return false;
+    if (payload.iss !== 'https://' + teamDomain) return false;
+    if (!payload.exp || payload.exp < now) return false;
+    if (payload.nbf && payload.nbf > now + 60) return false;
+    const keys = await accessSigningKeys(teamDomain, fetcher);
+    const jwk = keys.find(key => key.kid === header.kid);
+    if (!jwk) return false;
+    const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+    return await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, base64UrlBytes(signaturePart),
+      new TextEncoder().encode(headerPart + '.' + payloadPart));
+  } catch (_) {
+    return false;
+  }
+}
+
+export async function adminAllowed(request, env, fetcher = fetch) {
   const accessEnabled = clean(env.CLOUDFLARE_ACCESS_ENABLED).toLowerCase() === 'true';
-  const hasAccess = accessEnabled && (
-    clean(request.headers.get('cf-access-jwt-assertion')) ||
-    clean(request.headers.get('cookie')).toLowerCase().includes('cf_authorization=')
-  );
-  if (hasAccess) return true;
+  if (accessEnabled && await verifyAccessJwt(clean(request.headers.get('cf-access-jwt-assertion'), 8000), env, fetcher)) return true;
   const configured = clean(env.LEADS_EXPORT_TOKEN);
   const authorization = clean(request.headers.get('authorization'));
   const bearer = authorization.toLowerCase().startsWith('bearer ') ? authorization.slice(7).trim() : '';
   return Boolean(configured && bearer && await secretsMatch(bearer, configured));
 }
 
-export async function hashIp(ip) {
-  if (!ip || !crypto.subtle) return '';
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ip));
+// Keyed hash so stored values cannot be reversed by hashing every possible IP address.
+export async function hashIp(ip, env = {}) {
+  const secret = clean(env.IP_HASH_SECRET || env.LEADS_EXPORT_TOKEN);
+  if (!ip || !secret || !crypto.subtle) return '';
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const digest = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(ip));
   return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+// Simple per-IP limit backed by D1 so bots cannot flood the inbox or the database.
+export async function overRateLimit(db, table, ipHash, limit, minutes) {
+  if (!ipHash) return false;
+  const column = table === 'leads' ? 'submitted_at' : 'occurred_at';
+  const since = new Date(Date.now() - minutes * 60 * 1000).toISOString();
+  const row = await db.prepare('SELECT COUNT(*) count FROM ' + (table === 'leads' ? 'leads' : 'lead_events') +
+    ' WHERE ip_hash=? AND ' + column + '>?').bind(ipHash, since).first();
+  return Number(row && row.count || 0) >= limit;
 }
 
 export async function ensureSchema(db) {
@@ -136,8 +196,7 @@ export function normalizeLead(input) {
   };
 }
 
-export async function insertEvent(db, request, event) {
-  const ipHash = await hashIp(request.headers.get('cf-connecting-ip') || '');
+export async function insertEvent(db, request, event, ipHash = '') {
   await db.prepare(`INSERT INTO lead_events (
     occurred_at,event_name,page,landing_page,referrer,source,medium,campaign,term,content,
     gclid,fbclid,msclkid,service,link_url,link_text,phone_number,whatsapp_number,email_address,

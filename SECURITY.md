@@ -2,7 +2,8 @@
 
 - Cloudflare Access is the primary browser gate. Protect the dashboard and every read/write admin API path at the edge.
 - Functions also fail closed without Access evidence or an exact bearer secret.
-- Access evidence is trusted only when `CLOUDFLARE_ACCESS_ENABLED=true` and the paths are actually covered by an Access policy.
+- Access evidence is trusted only when `CLOUDFLARE_ACCESS_ENABLED=true` and the `cf-access-jwt-assertion` JWT verifies against the team's certs, `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD`. The `CF_Authorization` cookie alone is never trusted.
+- Public ingestion endpoints are rate limited per keyed IP hash (5 leads / 300 events per hour).
 - URL tokens are unsupported to prevent leakage through history, referrers and logs.
 - Store money as integer pence/cents, validate pipeline enums server-side, hash IP addresses and bound input lengths.
 - Treat `.dev.vars`, `.env*`, `.wrangler/` and downloaded exports as sensitive local material.
