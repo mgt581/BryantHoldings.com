@@ -1731,3 +1731,12 @@ h3 {
   font-size: 1.4rem;
   letter-spacing: 0;
 }
+
+/* Group logo is square with its own navy background: show it whole. */
+.hero-main-image {
+  background: #0b2a3a;
+}
+
+.hero-main-image img {
+  object-fit: contain;
+}
