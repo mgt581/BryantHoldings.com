@@ -45,13 +45,29 @@
       page: location.href,
       landing_page: landing,
       session_id: stable(sessionStorage, 'session_id', 'session'),
-      client_id: stable(localStorage, 'client_id', 'client')
+      // Session-only ID: nothing persists after the visitor closes the tab.
+      client_id: stable(sessionStorage, 'session_id', 'session')
     });
+  }
+
+  // Visitors can opt out (Privacy page) and browser privacy signals are honoured.
+  function optedOut() {
+    if (navigator.globalPrivacyControl === true) return true;
+    if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return true;
+    try { return localStorage.getItem(prefix + '_tracking_opt_out') === '1'; } catch (_) { return false; }
+  }
+
+  function setOptOut(value) {
+    try {
+      if (value) localStorage.setItem(prefix + '_tracking_opt_out', '1');
+      else localStorage.removeItem(prefix + '_tracking_opt_out');
+      localStorage.removeItem(prefix + '_client_id');
+    } catch (_) {}
   }
 
   function event(name, detail, options) {
     var eventName = clean(name);
-    if (!eventName) return;
+    if (!eventName || optedOut()) return;
     var payload = Object.assign({}, attribution(), detail || {}, { event_name: eventName });
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(Object.assign({ event: eventName }, detail || {}));
@@ -99,14 +115,31 @@
     });
   }
 
+  function initOptOutControls() {
+    document.querySelectorAll('[data-tracking-opt-out]').forEach(function (button) {
+      var status = document.querySelector('[data-tracking-status]');
+      function render() {
+        var off = optedOut();
+        button.textContent = off ? 'Turn enquiry tracking back on' : 'Turn off enquiry tracking';
+        if (status) status.textContent = off ? 'Enquiry tracking is off in this browser.' : 'Enquiry tracking is on in this browser.';
+      }
+      button.addEventListener('click', function () { setOptOut(!optedOut()); render(); });
+      render();
+    });
+  }
+
   function init() {
+    // Clear the long-lived ID older versions of this script stored.
+    try { localStorage.removeItem(prefix + '_client_id'); } catch (_) {}
+    initOptOutControls();
+    if (optedOut()) return;
     loadTagManager();
     clickTracking();
     event('page_view', { page_title: document.title, page_location: location.href, source: 'website' });
   }
 
   window.LeadGen = {
-    getAttribution: attribution,
+    getAttribution: function () { return optedOut() ? {} : attribution(); },
     trackEvent: event,
     trackLead: function (formName) { event('generate_lead', { form_name: formName || 'Website form', source: 'website' }, { store: false }); }
   };

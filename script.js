@@ -84,30 +84,30 @@ const createAiChatPopup = () => {
 
   const popup = document.createElement('aside');
   popup.className = 'ai-chat-popup';
-  popup.setAttribute('aria-label', 'AI chat contact panel');
+  popup.setAttribute('aria-label', 'Quick help contact panel');
 
   popup.innerHTML = `
     <div class="ai-chat-popup__top">
-      <p class="ai-chat-popup__tag">AI Chat</p>
+      <p class="ai-chat-popup__tag">Quick Help</p>
       <button type="button" class="ai-chat-popup__toggle" aria-expanded="true" aria-label="Minimize chat">Minimize</button>
     </div>
     <h2>Need help? Contact us now.</h2>
     <div class="ai-chat-popup__content">
       <div class="ai-chat-popup__messages" aria-live="polite">
-        <p class="ai-chat-msg ai-chat-msg--bot">Hi, I can help with services, pricing, and bookings.</p>
+        <p class="ai-chat-msg ai-chat-msg--bot">Hi, pick a quick option below or ask a question, and we'll point you in the right direction.</p>
       </div>
       <div class="ai-chat-popup__quick" aria-label="Quick chat prompts">
         <button type="button" data-prompt="I want a quote">Get a quote</button>
         <button type="button" data-prompt="Which services do you offer?">Services</button>
         <button type="button" data-prompt="I want to book a call">Book call</button>
       </div>
-      <form class="ai-chat-popup__composer" aria-label="AI chat message form">
-        <input type="text" name="message" placeholder="Ask us anything..." aria-label="Type your message" maxlength="180" />
+      <form class="ai-chat-popup__composer" aria-label="Quick help question form">
+        <input type="text" name="message" placeholder="Ask us anything..." aria-label="Type your question" maxlength="180" />
         <button type="submit">Send</button>
       </form>
       <div class="ai-chat-popup__actions">
         <a href="contact.html">Contact Us</a>
-        <a href="tel:07843969254">Call 07843969254</a>
+        <a href="tel:+447843969254">Call 07843 969254</a>
       </div>
     </div>
   `;
@@ -133,7 +133,7 @@ const createAiChatPopup = () => {
     }
 
     if (message.includes('book') || message.includes('call') || message.includes('meeting')) {
-      return 'You can call now on 07843969254 or send your preferred time via the Contact Us form.';
+      return 'You can call now on 07843 969254 or send your preferred time via the Contact Us form.';
     }
 
     return 'Thanks for your message. Use Contact Us for full details and our team will reply within 1 business day.';
@@ -173,13 +173,20 @@ const createAiChatPopup = () => {
     });
   });
 
-  toggleButton.addEventListener('click', () => {
-    const isMinimized = popup.classList.toggle('ai-chat-popup--minimized');
+  const setMinimized = (isMinimized) => {
+    popup.classList.toggle('ai-chat-popup--minimized', isMinimized);
     toggleButton.setAttribute('aria-expanded', String(!isMinimized));
-    toggleButton.setAttribute('aria-label', isMinimized ? 'Expand chat' : 'Minimize chat');
+    toggleButton.setAttribute('aria-label', isMinimized ? 'Open quick help' : 'Minimize quick help');
     toggleButton.textContent = isMinimized ? '💬' : 'Minimize';
     chatContent.hidden = isMinimized;
+  };
+
+  toggleButton.addEventListener('click', () => {
+    setMinimized(!popup.classList.contains('ai-chat-popup--minimized'));
   });
+
+  // Start closed so the panel never covers page content until a visitor asks for it.
+  setMinimized(true);
 };
 
 createAiChatPopup();
